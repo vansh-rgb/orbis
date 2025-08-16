@@ -1,9 +1,12 @@
 package com.strink.orbis.service;
 
+import com.strink.orbis.dto.AuthResponseDto;
 import com.strink.orbis.dto.UserCredDto;
+import com.strink.orbis.dto.UserDetailsDto;
 import com.strink.orbis.model.User;
 import com.strink.orbis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -39,15 +42,26 @@ public class UserService {
         if(password.length() < 8) throw new Exception("Password should be atleast of length 8");
     }
 
-    public String registerUser(UserCredDto registerUserDto, boolean isRegister) throws Exception {
+    public AuthResponseDto registerUser(UserCredDto registerUserDto, boolean isRegister) throws Exception {
         validateCredentials(registerUserDto, isRegister);
         User registeredUser = authService.registerUser(registerUserDto);
-        return jwtService.generateToken(registeredUser);
+        return getAuthResponseDto(registeredUser);
     }
 
-    public String loginUser(UserCredDto loginUserDto, boolean isRegister) throws Exception {
+    public AuthResponseDto loginUser(UserCredDto loginUserDto, boolean isRegister) throws Exception {
         validateCredentials(loginUserDto, isRegister);
         User loginUser = authService.authenticate(loginUserDto);
-        return jwtService.generateToken(loginUser);
+        return getAuthResponseDto(loginUser);
+    }
+
+    private AuthResponseDto getAuthResponseDto(User loginUser) {
+        String jwtAccessToken = jwtService.generateToken(loginUser);
+        AuthResponseDto authDto = new AuthResponseDto();
+        authDto.setAccessToken(jwtAccessToken);
+        UserDetailsDto userDto = new UserDetailsDto();
+        userDto.setId(loginUser.getId());
+        userDto.setUsername(loginUser.getUsername());
+        authDto.setUser(userDto);
+        return authDto;
     }
 }
