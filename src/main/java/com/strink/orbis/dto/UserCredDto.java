@@ -1,12 +1,3 @@
 package com.strink.orbis.dto;
 
-import lombok.Getter;
-
-@Getter
-public class UserCredDto {
-
-    private String username;
-
-    private String password;
-
-}
+public record UserCredDto(String username, String password) {}

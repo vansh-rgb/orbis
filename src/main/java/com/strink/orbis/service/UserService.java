@@ -20,15 +20,15 @@ public class UserService {
     private final JwtService jwtService;
 
     public void validateCredentials(UserCredDto registerUserDto, boolean isRegister) throws Exception {
-        validateUsername(registerUserDto.getUsername());
-        validatePassword(registerUserDto.getPassword());
+        validateUsername(registerUserDto.username());
+        validatePassword(registerUserDto.password());
         if(isRegister) {
             checkUserInDB(registerUserDto);
         }
     }
 
     private void checkUserInDB(UserCredDto registerUserDto) throws Exception {
-        Optional<User> user = userRepository.findByUsername(registerUserDto.getUsername());
+        Optional<User> user = userRepository.findByUsername(registerUserDto.username());
         if(user.isPresent()) {
             throw new Exception("Username already exists");
         }
@@ -56,12 +56,7 @@ public class UserService {
 
     private AuthResponseDto getAuthResponseDto(User loginUser) {
         String jwtAccessToken = jwtService.generateToken(loginUser);
-        AuthResponseDto authDto = new AuthResponseDto();
-        authDto.setAccessToken(jwtAccessToken);
-        UserDetailsDto userDto = new UserDetailsDto();
-        userDto.setId(loginUser.getId());
-        userDto.setUsername(loginUser.getUsername());
-        authDto.setUser(userDto);
-        return authDto;
+        UserDetailsDto userDto = new UserDetailsDto(loginUser.getId(), loginUser.getUsername());
+        return new AuthResponseDto(jwtAccessToken, userDto);
     }
 }

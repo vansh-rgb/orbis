@@ -24,17 +24,17 @@ public class AuthService {
     public User registerUser(UserCredDto registerUserDto) {
         User user = new User();
 
-        user.setUsername(registerUserDto.getUsername());
-        user.setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
+        user.setUsername(registerUserDto.username());
+        user.setPassword(passwordEncoder.encode(registerUserDto.password()));
         user.setCreatedAt(new Date(System.currentTimeMillis()));
 
         return userRepository.save(user);
     }
 
     public User authenticate(UserCredDto loginUserDto ) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(loginUserDto.getUsername(), loginUserDto.getPassword()));
+        authManager.authenticate(new UsernamePasswordAuthenticationToken(loginUserDto.username(), loginUserDto.password()));
 
-        return userRepository.findByUsername(loginUserDto.getUsername()).orElseThrow();
+        return userRepository.findByUsername(loginUserDto.username()).orElseThrow();
     }
 
 }
