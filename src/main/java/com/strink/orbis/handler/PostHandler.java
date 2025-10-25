@@ -1,8 +1,9 @@
 package com.strink.orbis.handler;
 
 import com.strink.orbis.dto.CreatePostResponse;
+import com.strink.orbis.dto.PostsByUserId;
 import com.strink.orbis.dto.PostDto;
-import com.strink.orbis.model.Post;
+import com.strink.orbis.dto.PostResponseDTO;
 import com.strink.orbis.model.User;
 import com.strink.orbis.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -26,14 +26,30 @@ public class PostHandler {
 
     Logger logger = LoggerFactory.getLogger(SLF4JLogger.class);
 
-    @PostMapping("/post")
+    @PostMapping("/posts")
     public ResponseEntity<CreatePostResponse> createPost(@RequestBody PostDto postDto, @AuthenticationPrincipal User user) {
         logger.info(user.getId());
         try {
-            Post post = postService.createPost(postDto, user);
+            PostResponseDTO post = postService.createPost(postDto, user);
             return new ResponseEntity<>(new CreatePostResponse("PostCreated", post), HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return new ResponseEntity<>(new CreatePostResponse(e.getMessage(), null), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/posts/{userId}")
+    public ResponseEntity<?> getPostFromId(@PathVariable String userId, @RequestBody PostsByUserId postsByUserId) {
+        logger.info("Post requested from user: {}", userId);
+        try {
+            List<PostResponseDTO> posts = postService.getPostFromUserId(userId);
+            return new ResponseEntity<>(posts, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("/posts")
+    public ResponseEntity<?> getPosts() {
+        return null;
     }
 }
