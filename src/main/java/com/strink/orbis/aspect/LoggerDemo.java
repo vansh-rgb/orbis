@@ -16,13 +16,23 @@ public class LoggerDemo {
     Logger logger = LoggerFactory.getLogger(SLF4JLogger.class);
 
     @After(value = "execution(* com.strink.orbis.handler..*(..))")
-    public void loggerHandler(JoinPoint joinPoint) {
-        logger.info("Logger - Method: {}", joinPoint.getSignature().getName());
+    public void loggerHandlerAfter(JoinPoint joinPoint) {
+        logger.info("Logger - Entering Handler Method: {}", joinPoint.getSignature().getName());
+    }
+
+    @Before(value = "execution(* com.strink.orbis.handler..*(..))")
+    public void loggerHandlerBefore(JoinPoint joinPoint) {
+        logger.info("Logger - Exiting Handler Method: {}", joinPoint.getSignature().getName());
     }
 
     @After(value = "execution(* com.strink.orbis.service..*(..))")
-    public void loggerService(JoinPoint joinPoint) {
-        logger.info("Logger - Method: {}", joinPoint.getSignature().getName());
+    public void loggerServiceAfter(JoinPoint joinPoint) {
+        logger.info("Logger - Entering Service Method: {}", joinPoint.getSignature().getName());
+    }
+
+    @After(value = "execution(* com.strink.orbis.service..*(..))")
+    public void loggerServiceBefore(JoinPoint joinPoint) {
+        logger.info("Logger - Exiting Service Method: {}", joinPoint.getSignature().getName());
     }
 
 }
