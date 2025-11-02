@@ -37,8 +37,8 @@ public class PostHandler {
         }
     }
 
-    @GetMapping("/posts/{userId}")
-    public ResponseEntity<?> getPostFromId(@PathVariable String userId, @RequestBody PostsByUserId postsByUserId) {
+    @GetMapping("/users/{userId}/posts")
+    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId, @RequestBody PostsByUserId postsByUserId) {
         logger.info("Post requested from user: {}", userId);
         try {
             List<PostResponseDTO> posts = postService.getPostFromUserId(userId);
@@ -48,8 +48,14 @@ public class PostHandler {
         }
     }
 
-    @GetMapping("/posts")
-    public ResponseEntity<?> getPosts() {
-        return null;
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<?> getPostFromId(@PathVariable String postId, @RequestBody PostsByUserId postsByUserId) {
+        logger.info("Post requested from postId: {}", postId);
+        try {
+            List<PostResponseDTO> posts = postService.getPostByPostId(postId);
+            return new ResponseEntity<>(posts, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
     }
 }

@@ -46,4 +46,10 @@ public class PostService {
         }
         return postResponseDTOS;
     }
+
+    public PostResponseDTO getPostByPostId(String postId) {
+        Post post = postRepository.getPostById(postId);
+
+        return new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption());
+    }
 }

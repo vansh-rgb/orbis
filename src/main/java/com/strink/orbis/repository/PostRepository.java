@@ -11,4 +11,6 @@ public interface PostRepository extends JpaRepository<Post, String> {
 
     List<Post> getPostByUserId(String userId);
 
+    Post getPostById(String id);
+
 }
