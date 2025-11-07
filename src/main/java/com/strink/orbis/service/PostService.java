@@ -1,5 +1,6 @@
 package com.strink.orbis.service;
 
+import com.strink.orbis.dto.GetPostPayloadDTO;
 import com.strink.orbis.dto.PostDto;
 import com.strink.orbis.dto.PostResponseDTO;
 import com.strink.orbis.model.Post;
@@ -51,5 +52,23 @@ public class PostService {
         Post post = postRepository.getPostById(postId);
 
         return new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption());
+    }
+
+    public List<PostResponseDTO> getPostsNearby(GetPostPayloadDTO postPayloadDTO) {
+        double longitude = postPayloadDTO.position().longitude();
+        double latitude = postPayloadDTO.position().latitude();
+
+        Point centrePoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+        double radiusInMeters = postPayloadDTO.radius()*1000;
+
+        List<Post> posts = postRepository.findPostsNearby(centrePoint,radiusInMeters);
+
+        List<PostResponseDTO> postResponses = new ArrayList<>();
+
+        for(Post post: posts) {
+            postResponses.add(new PostResponseDTO(post.getId(),post.getTitle(),post.getCaption()));
+        }
+
+        return postResponses;
     }
 }

@@ -1,9 +1,6 @@
 package com.strink.orbis.handler;
 
-import com.strink.orbis.dto.CreatePostResponse;
-import com.strink.orbis.dto.PostsByUserId;
-import com.strink.orbis.dto.PostDto;
-import com.strink.orbis.dto.PostResponseDTO;
+import com.strink.orbis.dto.*;
 import com.strink.orbis.model.User;
 import com.strink.orbis.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +35,7 @@ public class PostHandler {
     }
 
     @GetMapping("/users/{userId}/posts")
-    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId, @RequestBody PostsByUserId postsByUserId) {
+    public ResponseEntity<?> getPostsByUserId(@PathVariable String userId) {
         logger.info("Post requested from user: {}", userId);
         try {
             List<PostResponseDTO> posts = postService.getPostFromUserId(userId);
@@ -49,10 +46,20 @@ public class PostHandler {
     }
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<?> getPostFromId(@PathVariable String postId, @RequestBody PostsByUserId postsByUserId) {
+    public ResponseEntity<?> getPostFromId(@PathVariable String postId) {
         logger.info("Post requested from postId: {}", postId);
         try {
-            List<PostResponseDTO> posts = postService.getPostByPostId(postId);
+            PostResponseDTO post = postService.getPostByPostId(postId);
+            return new ResponseEntity<>(post, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @GetMapping("posts/nearby")
+    public ResponseEntity<?> getPosts(@RequestBody GetPostPayloadDTO postPayloadDTO) {
+        try {
+            List<PostResponseDTO> posts = postService.getPostsNearby(postPayloadDTO);
             return new ResponseEntity<>(posts, HttpStatus.ACCEPTED);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
