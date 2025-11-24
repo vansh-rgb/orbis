@@ -6,12 +6,13 @@ import com.strink.orbis.model.Post;
 import com.strink.orbis.model.VoteType;
 import com.strink.orbis.model.Votes;
 import com.strink.orbis.repository.PostRepository;
-import com.strink.orbis.repository.UserRepository;
 import com.strink.orbis.repository.VoteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+
 
 @Service
 @RequiredArgsConstructor
@@ -89,4 +90,9 @@ public class VoteService {
 
     }
 
+    public void deletePost(String postId) {
+        List<Votes> votesToRemove = voteRepository.getVotesByPostId(postId);
+
+        voteRepository.deleteAll(votesToRemove);
+    }
 }

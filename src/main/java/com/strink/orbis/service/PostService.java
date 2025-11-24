@@ -24,6 +24,9 @@ public class PostService {
 
     private final PostRepository postRepository;
 
+    private final CommentService commentService;
+    private final VoteService voteService;
+
     public PostResponseDTO createPost(PostDto postDto, User user) {
         Post post = new Post();
         post.setTitle(postDto.title());
@@ -34,7 +37,9 @@ public class PostService {
         Point locationPoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
         post.setLocation(locationPoint);
         Post responsePost = postRepository.save(post);
-        return new PostResponseDTO(responsePost.getId(), responsePost.getTitle(), responsePost.getCaption());
+        return new PostResponseDTO(responsePost.getId(), responsePost.getTitle(),
+                responsePost.getCaption(), responsePost.getUpvoteCount(),
+                responsePost.getDownvoteCount(), responsePost.getCommentCount());
     }
 
     public List<PostResponseDTO> getPostFromUserId(String userId) {
@@ -42,7 +47,8 @@ public class PostService {
         List<PostResponseDTO> postResponseDTOS = new ArrayList<>();
 
         for(Post post: posts) {
-            PostResponseDTO postResponseDTO = new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption());
+            PostResponseDTO postResponseDTO = new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption(),
+                    post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
             postResponseDTOS.add(postResponseDTO);
         }
         return postResponseDTOS;
@@ -51,7 +57,8 @@ public class PostService {
     public PostResponseDTO getPostByPostId(String postId) {
         Post post = postRepository.getPostById(postId);
 
-        return new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption());
+        return new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption(),
+                post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
     }
 
     public List<PostResponseDTO> getPostsNearby(GetPostPayloadDTO postPayloadDTO) {
@@ -66,9 +73,19 @@ public class PostService {
         List<PostResponseDTO> postResponses = new ArrayList<>();
 
         for(Post post: posts) {
-            postResponses.add(new PostResponseDTO(post.getId(),post.getTitle(),post.getCaption()));
+            postResponses.add(new PostResponseDTO(post.getId(),post.getTitle(),post.getCaption(),
+                    post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount()));
         }
 
         return postResponses;
+    }
+
+    public PostResponseDTO deletePost(String postId) throws Exception {
+        Post post = postRepository.getPostById(postId);
+        if(post == null) throw new Exception("Post not found!!!");
+        postRepository.deleteById(postId);
+        commentService.deletePost(postId);
+        voteService.deletePost(postId);
+        return new PostResponseDTO(post.getTitle(),post.getId(), post.getCaption(), post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
     }
 }

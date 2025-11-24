@@ -56,11 +56,21 @@ public class PostHandler {
         }
     }
 
-    @GetMapping("posts/nearby")
+    @GetMapping("/posts/nearby")
     public ResponseEntity<?> getPosts(@RequestBody GetPostPayloadDTO postPayloadDTO) {
         try {
             List<PostResponseDTO> posts = postService.getPostsNearby(postPayloadDTO);
             return new ResponseEntity<>(posts, HttpStatus.ACCEPTED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @DeleteMapping("/posts/{postId}")
+    public ResponseEntity<?> deletePost(@PathVariable String postId) {
+        try {
+            PostResponseDTO post = postService.deletePost(postId);
+            return new ResponseEntity<>(post, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }

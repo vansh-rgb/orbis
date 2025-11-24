@@ -2,12 +2,18 @@ package com.strink.orbis.model;
 
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name="comments")
-public class Comments {
+@Getter
+@Setter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Comment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
