@@ -1,6 +1,5 @@
 package com.strink.orbis.handler;
 
-
 import com.strink.orbis.dto.AuthResponseDto;
 import com.strink.orbis.dto.UserCredDto;
 import com.strink.orbis.service.UserService;
@@ -18,22 +17,13 @@ public class AuthHandler {
 
     @PostMapping("/register")
     public ResponseEntity<Object> registerUser(@RequestBody UserCredDto registerUserDto) {
-        try {
-            AuthResponseDto authResponse = userService.registerUser(registerUserDto, true);
-            return new ResponseEntity<>(authResponse, HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        AuthResponseDto authResponse = userService.registerUser(registerUserDto, true);
+        return new ResponseEntity<>(authResponse, HttpStatus.ACCEPTED);
     }
 
     @GetMapping("/login")
-    public ResponseEntity<Object> loginUser(@RequestBody UserCredDto loginUserDto) throws Exception {
-        try {
-            AuthResponseDto authResponse = userService.loginUser(loginUserDto, false);
-            return new ResponseEntity<>(authResponse, HttpStatus.ACCEPTED);
-        } catch (Exception e) {
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<Object> loginUser(@RequestBody UserCredDto loginUserDto) {
+        AuthResponseDto authResponse = userService.loginUser(loginUserDto, false);
+        return new ResponseEntity<>(authResponse, HttpStatus.ACCEPTED);
     }
-
 }

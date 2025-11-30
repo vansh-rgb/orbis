@@ -2,6 +2,7 @@ package com.strink.orbis.service;
 
 import com.strink.orbis.dto.VoteDto;
 import com.strink.orbis.dto.VoteResponse;
+import com.strink.orbis.exception.ResourceNotFoundException;
 import com.strink.orbis.model.Post;
 import com.strink.orbis.model.VoteType;
 import com.strink.orbis.model.Votes;
@@ -13,7 +14,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 @RequiredArgsConstructor
 public class VoteService {
@@ -21,10 +21,9 @@ public class VoteService {
     private final VoteRepository voteRepository;
     private final PostRepository postRepository;
 
-
-    public VoteResponse handleVote(String postId, VoteDto voteDto, String userId) throws Exception {
+    public VoteResponse handleVote(String postId, VoteDto voteDto, String userId) {
         Post post = postRepository.findById(postId)
-                .orElseThrow(() -> new Exception("Post not found with id: " + postId));
+                .orElseThrow(() -> new ResourceNotFoundException("Post", postId));
 
         Optional<Votes> existingVote = voteRepository.findByUserIdAndPostId(userId, postId);
 
@@ -71,7 +70,7 @@ public class VoteService {
         return new VoteResponse(null, post.getUpvoteCount(), post.getDownvoteCount());
     }
 
-    public VoteResponse addVote(String postId, String userId, Post post, VoteType voteType) throws Exception {
+    public VoteResponse addVote(String postId, String userId, Post post, VoteType voteType) {
         Votes vote = Votes.builder()
                 .voteType(voteType)
                 .postId(postId)

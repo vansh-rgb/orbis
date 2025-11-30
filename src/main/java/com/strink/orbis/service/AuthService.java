@@ -31,10 +31,13 @@ public class AuthService {
         return userRepository.save(user);
     }
 
-    public User authenticate(UserCredDto loginUserDto ) {
-        authManager.authenticate(new UsernamePasswordAuthenticationToken(loginUserDto.username(), loginUserDto.password()));
+    public User authenticate(UserCredDto loginUserDto) {
+        authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginUserDto.username(), loginUserDto.password()));
 
-        return userRepository.findByUsername(loginUserDto.username()).orElseThrow();
+        return userRepository.findByUsername(loginUserDto.username())
+                .orElseThrow(() -> new com.strink.orbis.exception.ResourceNotFoundException("User",
+                        loginUserDto.username()));
     }
 
 }

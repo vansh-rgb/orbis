@@ -3,6 +3,7 @@ package com.strink.orbis.service;
 import com.strink.orbis.dto.GetPostPayloadDTO;
 import com.strink.orbis.dto.PostDto;
 import com.strink.orbis.dto.PostResponseDTO;
+import com.strink.orbis.exception.ResourceNotFoundException;
 import com.strink.orbis.model.Post;
 import com.strink.orbis.model.User;
 import com.strink.orbis.repository.PostRepository;
@@ -46,7 +47,7 @@ public class PostService {
         List<Post> posts = postRepository.getPostByUserId(userId);
         List<PostResponseDTO> postResponseDTOS = new ArrayList<>();
 
-        for(Post post: posts) {
+        for (Post post : posts) {
             PostResponseDTO postResponseDTO = new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption(),
                     post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
             postResponseDTOS.add(postResponseDTO);
@@ -56,6 +57,9 @@ public class PostService {
 
     public PostResponseDTO getPostByPostId(String postId) {
         Post post = postRepository.getPostById(postId);
+        if (post == null) {
+            throw new ResourceNotFoundException("Post", postId);
+        }
 
         return new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption(),
                 post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
@@ -66,26 +70,29 @@ public class PostService {
         double latitude = postPayloadDTO.position().latitude();
 
         Point centrePoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
-        double radiusInMeters = postPayloadDTO.radius()*1000;
+        double radiusInMeters = postPayloadDTO.radius() * 1000;
 
-        List<Post> posts = postRepository.findPostsNearby(centrePoint,radiusInMeters);
+        List<Post> posts = postRepository.findPostsNearby(centrePoint, radiusInMeters);
 
         List<PostResponseDTO> postResponses = new ArrayList<>();
 
-        for(Post post: posts) {
-            postResponses.add(new PostResponseDTO(post.getId(),post.getTitle(),post.getCaption(),
+        for (Post post : posts) {
+            postResponses.add(new PostResponseDTO(post.getId(), post.getTitle(), post.getCaption(),
                     post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount()));
         }
 
         return postResponses;
     }
 
-    public PostResponseDTO deletePost(String postId) throws Exception {
+    public PostResponseDTO deletePost(String postId) {
         Post post = postRepository.getPostById(postId);
-        if(post == null) throw new Exception("Post not found!!!");
+        if (post == null) {
+            throw new ResourceNotFoundException("Post", postId);
+        }
         postRepository.deleteById(postId);
         commentService.deletePost(postId);
         voteService.deletePost(postId);
-        return new PostResponseDTO(post.getTitle(),post.getId(), post.getCaption(), post.getUpvoteCount(), post.getDownvoteCount(), post.getCommentCount());
+        return new PostResponseDTO(post.getTitle(), post.getId(), post.getCaption(), post.getUpvoteCount(),
+                post.getDownvoteCount(), post.getCommentCount());
     }
 }

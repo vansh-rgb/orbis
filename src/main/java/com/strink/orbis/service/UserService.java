@@ -3,10 +3,11 @@ package com.strink.orbis.service;
 import com.strink.orbis.dto.AuthResponseDto;
 import com.strink.orbis.dto.UserCredDto;
 import com.strink.orbis.dto.UserDetailsDto;
+import com.strink.orbis.exception.DuplicateResourceException;
+import com.strink.orbis.exception.ValidationException;
 import com.strink.orbis.model.User;
 import com.strink.orbis.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,36 +20,38 @@ public class UserService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
-    public void validateCredentials(UserCredDto registerUserDto, boolean isRegister) throws Exception {
+    public void validateCredentials(UserCredDto registerUserDto, boolean isRegister) {
         validateUsername(registerUserDto.username());
         validatePassword(registerUserDto.password());
-        if(isRegister) {
+        if (isRegister) {
             checkUserInDB(registerUserDto);
         }
     }
 
-    private void checkUserInDB(UserCredDto registerUserDto) throws Exception {
+    private void checkUserInDB(UserCredDto registerUserDto) {
         Optional<User> user = userRepository.findByUsername(registerUserDto.username());
-        if(user.isPresent()) {
-            throw new Exception("Username already exists");
+        if (user.isPresent()) {
+            throw new DuplicateResourceException("User", registerUserDto.username());
         }
     }
 
-    private void validateUsername(String username) throws Exception {
-        if(username.length() < 6) throw new Exception("Username should be atleast of length 6");
+    private void validateUsername(String username) {
+        if (username.length() < 6)
+            throw new ValidationException("username", "should be at least 6 characters long");
     }
 
-    private void validatePassword(String password) throws Exception{
-        if(password.length() < 8) throw new Exception("Password should be atleast of length 8");
+    private void validatePassword(String password) {
+        if (password.length() < 8)
+            throw new ValidationException("password", "should be at least 8 characters long");
     }
 
-    public AuthResponseDto registerUser(UserCredDto registerUserDto, boolean isRegister) throws Exception {
+    public AuthResponseDto registerUser(UserCredDto registerUserDto, boolean isRegister) {
         validateCredentials(registerUserDto, isRegister);
         User registeredUser = authService.registerUser(registerUserDto);
         return getAuthResponseDto(registeredUser);
     }
 
-    public AuthResponseDto loginUser(UserCredDto loginUserDto, boolean isRegister) throws Exception {
+    public AuthResponseDto loginUser(UserCredDto loginUserDto, boolean isRegister) {
         validateCredentials(loginUserDto, isRegister);
         User loginUser = authService.authenticate(loginUserDto);
         return getAuthResponseDto(loginUser);

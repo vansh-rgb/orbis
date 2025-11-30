@@ -1,5 +1,6 @@
 package com.strink.orbis.service;
 
+import com.strink.orbis.exception.ResourceNotFoundException;
 import com.strink.orbis.model.Comment;
 import com.strink.orbis.model.Post;
 import com.strink.orbis.repository.CommentRepository;
@@ -20,15 +21,15 @@ public class CommentService {
     @Transactional
     public Comment addComment(String content, String postId, String userId) {
         Post post = postRepository.getPostById(postId);
-        if(post==null) {
-            return null;
+        if (post == null) {
+            throw new ResourceNotFoundException("Post", postId);
         }
         Comment comment = Comment.builder()
                 .content(content)
                 .userId(userId)
                 .postId(postId)
                 .build();
-        post.setCommentCount(post.getCommentCount()+1);
+        post.setCommentCount(post.getCommentCount() + 1);
 
         Comment commentResp = commentRepository.save(comment);
         postRepository.save(post);
@@ -36,13 +37,13 @@ public class CommentService {
 
     }
 
-    public Comment deleteComment(String commentId) throws Exception{
+    public Comment deleteComment(String commentId) {
         Comment comment = commentRepository.getCommentsById(commentId);
-        if(comment==null) {
-            throw new Exception("Comment not found!");
+        if (comment == null) {
+            throw new ResourceNotFoundException("Comment", commentId);
         }
         Post post = postRepository.getPostById(comment.getPostId());
-        post.setCommentCount(post.getCommentCount()-1);
+        post.setCommentCount(post.getCommentCount() - 1);
         commentRepository.deleteById(commentId);
 
         return comment;
