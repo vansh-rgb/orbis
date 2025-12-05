@@ -5,6 +5,7 @@ import com.strink.orbis.exception.AuthenticationException;
 import com.strink.orbis.exception.DuplicateResourceException;
 import com.strink.orbis.exception.ResourceNotFoundException;
 import com.strink.orbis.exception.ValidationException;
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -183,10 +184,6 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 
-    /**
-     * Handle all other exceptions - 500 INTERNAL SERVER ERROR
-     * This is the fallback handler
-     */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ExceptionResponseDTO> handleGlobalException(
             Exception ex, HttpServletRequest request) {
