@@ -22,6 +22,7 @@ A location-based social media REST API built with Spring Boot. Orbis enables use
 | **Security** | Spring Security + JWT (jjwt 0.11.5) |
 | **Geospatial** | JTS Core + Hibernate Spatial |
 | **Build Tool** | Maven |
+| **Containerization** | Docker + Docker Compose |
 
 ## Project Structure
 
@@ -96,6 +97,36 @@ mvn spring-boot:run
 ```
 
 The API will be available at `http://localhost:8080`
+
+### 5. Running with Docker (Alternative)
+
+If you prefer using Docker, you can run the entire stack with Docker Compose:
+
+**Prerequisites:**
+- Docker and Docker Compose installed
+
+**Steps:**
+
+```bash
+# Build the application JAR first
+./mvnw clean package -DskipTests
+
+# Start all services (PostgreSQL with PostGIS + App)
+docker compose up -d
+
+# View logs
+docker compose logs -f
+
+# Stop services
+docker compose down
+```
+
+The API will be available at `http://localhost:8081`
+
+> **Note:** The Docker setup uses:
+> - PostgreSQL with PostGIS on port `5433` (mapped from container's `5432`)
+> - Application on port `8081` (mapped from container's `8080`)
+> - Persistent volume `db_data` for database storage
 
 ## API Endpoints
 
